@@ -5,11 +5,9 @@ import onmt.inputters as inputters
 
 def separate_data(data_path, name_to_save, mode):
     lines = open(data_path).read().split('\n')
-    with open(name_to_save + "_src-" + mode + ".txt", "w") as f1, \
-            open(name_to_save + "_tgt-" + mode + ".txt", "w") as f2:
+    with open(name_to_save + "_src-" + mode +".txt", "w") as f1, open(name_to_save + "_tgt-" + mode + ".txt", "w") as f2:
         for line in lines[3: len(lines) - 1]:
             input_text, target_text, *c = line.split('\t')
-            input_text,_ = input_text.split('>')
             input_text = input_text.split()
             target_text = target_text.split()
             f1.write(" ".join(input_text) + " \n")
@@ -27,13 +25,22 @@ if __name__ == "__main__":
     mode = "valid"
     separate_data(data_path, name_to_save, mode)
 
+    data_path = "data/US_patents_1976-Sep2016_1product_reactions_test.csv"
+    name_to_save = "data/USP"
+    mode = "test"
+    separate_data(data_path, name_to_save, mode)
+
     opt = PreprocessorOpts(
-                            train_src=name_to_save + "_src-train.txt",
-                            train_tgt=name_to_save + "_tgt-train.txt",
-                            valid_src=name_to_save + "_src-valid.txt",
-                            valid_tgt=name_to_save + "_tgt-valid.txt",
-                            save_data="data/USP"
-                          )
+        train_src=name_to_save + "_src-train.txt",
+        train_tgt=name_to_save + "_tgt-train.txt",
+        valid_src=name_to_save + "_src-valid.txt",
+        valid_tgt=name_to_save + "_tgt-valid.txt",
+        save_data="data/USP",
+        shard_size=100000,
+        tgt_seq_length=1000,
+        src_seq_length=1000,
+        shuffle=1
+    )
 
     src_nfeats = inputters.get_num_features(
         opt.data_type, opt.train_src, 'src')
